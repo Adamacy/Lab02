@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 class Time {
 private:
@@ -55,6 +56,66 @@ std::istream& operator >>(std::istream& in, Time& t) {
     in >> t.seconds_;
     return in;
 }
+
+class Item {
+private:
+    std::string name;
+    float price;
+    char vat; //“A” – 23%, “B” – 8%, “C” – 0%
+    int amount;
+public:
+    Item(std::string n, float p, char v, int a) {
+        name = n;
+        price = p;
+        vat = v;
+        amount = a;
+    }
+    friend std::ostream& operator<<(std::ostream& str, Item& item);
+};
+
+std::ostream& operator<<(std::ostream& str, Item& item){
+    float vat;
+    if (item.vat == 'A') {
+        vat = 0.23;
+    }
+    else if (item.vat == 'B') {
+        vat = 0.08;
+    }
+    else{
+        vat = 0;
+    }
+    float netto = item.amount * item.price;
+    float brutto = netto * vat + netto;
+    str << item.name << "     | " << item.price << " " << item.vat << " | " << item.amount << " | " << netto << " | " << brutto;
+    return str;
+}
+
+class Invoice {
+private:
+    std::string sellerNIP;
+    std::string buyerNIP;
+    std::vector<Item> items;
+public:
+    Invoice(std::string sNIP, std::string bNIP) {
+        sellerNIP = sNIP;
+        buyerNIP = bNIP;
+    }
+    void addItem(const Item& item) {
+        items.push_back(item);
+    }
+    friend std::ostream& operator<<(std::ostream& str, Invoice& inv);
+};
+std::ostream& operator<<(std::ostream& str, Invoice& inv) {
+    str << "------------------VAT invoice------------------" << "\n";
+    str << "===============================================" << "\n";
+    str << "Seller: " << inv.sellerNIP << "      " << "Buyer: " << inv.buyerNIP << "\n\n";
+    str << "                  c.j. VAT   il.    net   total" << "\n";
+    for (Item item : inv.items) {
+        std::cout << item << "\n";
+    }
+    return str;
+
+}
 int main()
 {
     int choice = 0;
@@ -76,5 +137,13 @@ int main()
         
         std::cout << "Conversion " << t2 << " to seconds : " << static_cast<int>(t2);
     }
-    
+    else if(choice == 2){
+        Invoice inv("7770003699", "0123456789");
+        inv.addItem(Item("M3 screw", 0.37, 'A', 100));
+        inv.addItem(Item("2 mm drill", 2.54, 'B', 2));
+        std::cout << inv << std::endl;
+    }
+    else {
+        std::cout << "Wrong choice!!!";
+    }
 }
