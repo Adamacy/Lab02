@@ -70,23 +70,27 @@ public:
         vat = v;
         amount = a;
     }
+    float getNetto() {
+        return amount * price;
+    }
+    float getBrutto() {
+        float localVat;
+        if (vat == 'A') {
+            localVat = 0.23;
+        }
+        else if (vat == 'B') {
+            localVat = 0.08;
+        }
+        else {
+            localVat = 0;
+        }
+        return getNetto() * localVat + getNetto();
+    }
     friend std::ostream& operator<<(std::ostream& str, Item& item);
 };
 
 std::ostream& operator<<(std::ostream& str, Item& item){
-    float vat;
-    if (item.vat == 'A') {
-        vat = 0.23;
-    }
-    else if (item.vat == 'B') {
-        vat = 0.08;
-    }
-    else{
-        vat = 0;
-    }
-    float netto = item.amount * item.price;
-    float brutto = netto * vat + netto;
-    str << item.name << "     | " << item.price << " " << item.vat << " | " << item.amount << " | " << netto << " | " << brutto;
+    str << item.name << "     | " << item.price << " " << item.vat << " | " << item.amount << " | " << item.getNetto() << " | " << item.getBrutto();
     return str;
 }
 
@@ -106,13 +110,19 @@ public:
     friend std::ostream& operator<<(std::ostream& str, Invoice& inv);
 };
 std::ostream& operator<<(std::ostream& str, Invoice& inv) {
+    float totalNetto = 0;
+    float totalBrutto = 0;
     str << "------------------VAT invoice------------------" << "\n";
     str << "===============================================" << "\n";
     str << "Seller: " << inv.sellerNIP << "      " << "Buyer: " << inv.buyerNIP << "\n\n";
     str << "                  c.j. VAT   il.    net   total" << "\n";
     for (Item item : inv.items) {
         std::cout << item << "\n";
+        totalNetto += item.getNetto();
+        totalBrutto += item.getBrutto();
     }
+    str << "------------------------------------ TOTAL ----" << "\n";
+    str << "                                  " << totalNetto << " | " << totalBrutto;
     return str;
 
 }
