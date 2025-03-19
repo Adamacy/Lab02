@@ -108,6 +108,19 @@ public:
         items.push_back(item);
     }
     friend std::ostream& operator<<(std::ostream& str, Invoice& inv);
+	Invoice operator+(const Invoice& inv) {
+        Invoice result(sellerNIP, buyerNIP);
+        if (sellerNIP == inv.sellerNIP) {
+            for (Item item : items) {
+                result.addItem(item);
+            }
+			for (Item item : inv.items) {
+				result.addItem(item);
+			}
+            return result;
+        }
+        
+	}
 };
 std::ostream& operator<<(std::ostream& str, Invoice& inv) {
     float totalNetto = 0;
@@ -151,7 +164,10 @@ int main()
         Invoice inv("7770003699", "0123456789");
         inv.addItem(Item("M3 screw", 0.37, 'A', 100));
         inv.addItem(Item("2 mm drill", 2.54, 'B', 2));
-        std::cout << inv << std::endl;
+		Invoice inv2("7770003699", "0123456789");
+        inv.addItem(Item("Example", 3.14, 'A', 21));
+		Invoice inv3 = inv + inv2;
+        std::cout << inv3 << std::endl;
     }
     else {
         std::cout << "Wrong choice!!!";
